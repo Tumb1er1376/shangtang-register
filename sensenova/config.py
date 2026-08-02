@@ -44,9 +44,8 @@ class Config:
 
     def reload(self):
         """重新读取配置"""
-        self.HZM_USER = os.environ.get("HZM_USER", "")
-        self.HZM_PASS = os.environ.get("HZM_PASS", "")
-        self.HZM_SID = os.environ.get("HZM_SID", "")
+        self.JC_TOKEN = os.environ.get("JC_TOKEN", "")
+        self.JC_SID = os.environ.get("JC_SID", "")
         self.HTTP_PROXY = os.environ.get("HTTP_PROXY", "") or os.environ.get("http_proxy", "")
         self.HTTPS_PROXY = os.environ.get("HTTPS_PROXY", "") or os.environ.get("https_proxy", "")
         self.SMS_ASCRIPTION = os.environ.get("SMS_ASCRIPTION", "1")
@@ -69,9 +68,8 @@ class Config:
     def save_to_file(self) -> None:
         """将当前配置写回 .env 文件"""
         lines = [
-            f"HZM_USER={self.HZM_USER}\n",
-            f"HZM_PASS={self.HZM_PASS}\n",
-            f"HZM_SID={self.HZM_SID}\n",
+            f"JC_TOKEN={self.JC_TOKEN}\n",
+            f"JC_SID={self.JC_SID}\n",
             f"HTTP_PROXY={self.HTTP_PROXY}\n",
             f"HTTPS_PROXY={self.HTTPS_PROXY}\n",
             f"SMS_ASCRIPTION={self.SMS_ASCRIPTION}\n",
@@ -80,7 +78,7 @@ class Config:
             f"REGISTER_OUTPUT={self.REGISTER_OUTPUT}\n",
         ]
         ENV_PATH.write_text("".join(lines), encoding="utf-8")
-        for key in ("HZM_USER", "HZM_PASS", "HZM_SID",
+        for key in ("JC_TOKEN", "JC_SID",
                      "SMS_ASCRIPTION", "SMS_PARAGRAPH",
                      "REGISTER_COUNT", "REGISTER_OUTPUT"):
             val = getattr(self, key, "")

@@ -5,36 +5,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>商汤自动注册</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
   --bg: #f5f5f7;
+  --bg-elevated: #fafafa;
   --card: #ffffff;
   --blue: #0071e3;
   --blue-hover: #0077ed;
+  --blue-soft: rgba(0,113,227,0.08);
   --green: #34c759;
+  --green-soft: rgba(52,199,89,0.10);
   --red: #ff3b30;
+  --red-soft: rgba(255,59,48,0.10);
   --orange: #ff9500;
+  --orange-soft: rgba(255,149,0,0.10);
   --text: #1d1d1f;
   --text-secondary: #86868b;
+  --text-tertiary: #aeaeb2;
   --border: #d2d2d7;
+  --border-soft: #e5e5ea;
   --radius: 16px;
   --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
 }
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Header */
+/* ─── Header ─── */
 .header {
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.72);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-soft);
+  padding: 14px 24px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -42,63 +58,118 @@ body {
   align-items: center;
   justify-content: space-between;
 }
-.header h1 {
-  font-size: 20px;
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-brand .logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--blue), #5856d6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+.header-brand h1 {
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.3px;
+  text-wrap: balance;
 }
-.header .status-badge {
-  font-size: 13px;
-  padding: 4px 12px;
-  border-radius: 980px;
+.status-badge {
+  font-size: 12px;
   font-weight: 500;
-  background: var(--border);
+  padding: 5px 12px;
+  border-radius: 980px;
+  background: var(--border-soft);
   color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
 }
-.header .status-badge.running {
-  background: rgba(52, 199, 89, 0.12);
+.status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.status-badge.running {
+  background: var(--green-soft);
   color: var(--green);
 }
-.header .status-badge.error {
-  background: rgba(255, 59, 48, 0.12);
+.status-badge.running::before {
+  background: var(--green);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+.status-badge.error {
+  background: var(--red-soft);
   color: var(--red);
 }
+.status-badge.error::before {
+  background: var(--red);
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
 
-/* Layout */
+/* ─── Layout ─── */
 .container {
-  max-width: 1080px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px 20px 48px;
 }
 .main-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 20px;
 }
 .main-grid > .full { grid-column: 1 / -1; }
 
-/* Card */
+/* ─── Card ─── */
 .card {
   background: var(--card);
   border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-soft);
+  transition: box-shadow 0.2s ease;
 }
 .card-title {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 600;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+}
+.card-title-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title-icon svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
 }
 .card-title .sub-actions {
   display: flex;
   gap: 8px;
 }
 
-/* Form */
-.form-group { margin-bottom: 14px; }
+/* ─── Form ─── */
+.form-group { margin-bottom: 16px; }
+.form-group:last-of-type { margin-bottom: 0; }
 .form-group label {
   display: block;
   font-size: 13px;
@@ -106,21 +177,39 @@ body {
   color: var(--text-secondary);
   margin-bottom: 6px;
 }
-.form-group input, .form-group select {
+.form-group input,
+.form-group select {
   width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 15px;
+  font-size: 14px;
   font-family: inherit;
-  background: var(--bg);
+  background: var(--bg-elevated);
   color: var(--text);
-  transition: border 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
-.form-group input:focus {
+.form-group input:hover,
+.form-group select:hover {
+  border-color: var(--text-tertiary);
+}
+.form-group input:focus,
+.form-group select:focus {
   outline: none;
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+  box-shadow: 0 0 0 3px var(--blue-soft);
+  background: var(--card);
+}
+.form-group input::placeholder {
+  color: var(--text-tertiary);
+}
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2386868b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
 }
 .form-row {
   display: grid;
@@ -128,7 +217,7 @@ body {
   gap: 12px;
 }
 
-/* Button */
+/* ─── Button ─── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -137,11 +226,20 @@ body {
   padding: 10px 20px;
   border: none;
   border-radius: 980px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+  white-space: nowrap;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 .btn-primary {
   background: var(--blue);
@@ -151,44 +249,67 @@ body {
 .btn-primary:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
-.btn-danger { background: var(--red); color: white; }
 .btn-secondary {
-  background: rgba(118,118,128,0.12);
+  background: rgba(118,118,128,0.10);
   color: var(--text);
 }
+.btn-secondary:hover { background: rgba(118,118,128,0.16); }
 .btn-sm { padding: 6px 14px; font-size: 13px; }
 .btn-full { width: 100%; }
 
-/* Register Panel */
+/* ─── Register Panel ─── */
 .count-selector {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 14px;
 }
+.count-selector label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
 .count-selector input {
-  width: 80px;
+  width: 64px;
   text-align: center;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  background: var(--bg);
+  font-variant-numeric: tabular-nums;
+  background: var(--bg-elevated);
+  color: var(--text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.count-selector input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-soft);
 }
 .quick-count {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 .quick-count button {
-  padding: 8px 16px;
+  padding: 7px 14px;
   border: 1px solid var(--border);
   border-radius: 980px;
-  background: white;
-  font-size: 14px;
+  background: var(--card);
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-family: inherit;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
+}
+.quick-count button:hover {
+  border-color: var(--text-tertiary);
+  color: var(--text);
 }
 .quick-count button.active {
   background: var(--blue);
@@ -196,11 +317,11 @@ body {
   border-color: var(--blue);
 }
 
-/* Progress */
-.progress-container { margin-top: 12px; }
+/* ─── Progress ─── */
+.progress-container { margin-top: 16px; }
 .progress-bar-bg {
   height: 6px;
-  background: rgba(118,118,128,0.12);
+  background: var(--border-soft);
   border-radius: 980px;
   overflow: hidden;
 }
@@ -211,35 +332,68 @@ body {
   transition: width 0.3s ease;
   width: 0%;
 }
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
 
-/* Log */
+/* ─── Log ─── */
+.log-section { margin-top: 16px; }
+.log-header {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.log-header svg {
+  width: 14px;
+  height: 14px;
+}
 .log-panel {
-  background: #1d1d1f;
+  background: #1a1a1c;
   border-radius: var(--radius-sm);
   padding: 14px;
   max-height: 260px;
   overflow-y: auto;
-  font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  font-family: 'SF Mono', 'Fira Code', 'Menlo', 'Cascadia Code', monospace;
   font-size: 12.5px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 .log-panel::-webkit-scrollbar { width: 6px; }
+.log-panel::-webkit-scrollbar-track { background: transparent; }
 .log-panel::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.15);
   border-radius: 3px;
 }
-.log-line { color: #e5e5e7; white-space: pre-wrap; word-break: break-all; }
-.log-line .time { color: #6e6e73; }
-.log-line.info .msg { color: #e5e5e7; }
+.log-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.25);
+}
+.log-line {
+  color: #e5e5e7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.log-line .time {
+  color: #6e6e73;
+  margin-right: 2px;
+}
+.log-line.info .msg { color: #d1d1d6; }
 .log-line.warning .msg { color: var(--orange); }
-.log-line.error .msg { color: var(--red); }
+.log-line.error .msg { color: #ff6961; }
 .log-line.done {
   color: var(--green);
   font-weight: 600;
 }
 
-/* Account Table */
-.table-wrap { overflow-x: auto; max-height: 300px; overflow-y: auto; }
+/* ─── Account Table ─── */
+.table-wrap { overflow-x: auto; }
 table {
   width: 100%;
   border-collapse: collapse;
@@ -255,51 +409,117 @@ th {
   white-space: nowrap;
   position: sticky;
   top: 0;
-  background: white;
+  background: var(--card);
   z-index: 1;
 }
 td {
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(210,210,215,0.4);
-  vertical-align: top;
+  padding: 12px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: middle;
+}
+tbody tr {
+  transition: background-color 0.1s ease;
+}
+tbody tr:hover {
+  background: var(--bg-elevated);
 }
 tr:last-child td { border-bottom: none; }
-.copy-btn {
-  padding: 4px 10px;
+td .mono {
+  font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
   font-size: 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: white;
-  cursor: pointer;
-  transition: all 0.15s;
 }
-.copy-btn:hover { background: var(--bg); }
+.key-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.key-cell .key-text {
+  font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  font-size: 12px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+.copy-btn:hover {
+  background: var(--bg);
+  color: var(--text);
+}
 .copy-btn.copied {
   background: var(--green);
   color: white;
   border-color: var(--green);
 }
-.empty-state {
-  text-align: center;
-  padding: 30px 20px;
-  color: var(--text-secondary);
-  font-size: 15px;
+.copy-btn.delete-btn {
+  color: var(--red);
+  border-color: rgba(255,59,48,0.3);
+}
+.copy-btn.delete-btn:hover {
+  background: var(--red-soft);
+  color: var(--red);
+}
+.copy-btn svg {
+  width: 13px;
+  height: 13px;
 }
 
-/* Toast */
+/* ─── Empty State ─── */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+}
+.empty-state svg {
+  width: 40px;
+  height: 40px;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+.empty-state .empty-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.empty-state .empty-hint {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* ─── Toast ─── */
 .toast {
   position: fixed;
-  bottom: 30px;
+  bottom: 32px;
   left: 50%;
   transform: translateX(-50%) translateY(100px);
-  background: rgba(0,0,0,0.85);
+  background: rgba(29,29,31,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: white;
   padding: 12px 24px;
   border-radius: 980px;
   font-size: 14px;
+  font-weight: 500;
   z-index: 999;
   opacity: 0;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
 }
 .toast.show {
   transform: translateX(-50%) translateY(0);
@@ -308,10 +528,20 @@ tr:last-child td { border-bottom: none; }
 
 .hidden { display: none !important; }
 
-/* Responsive */
+/* ─── Responsive ─── */
 @media (max-width: 768px) {
-  .main-grid {
-    grid-template-columns: 1fr;
+  .main-grid { grid-template-columns: 1fr; }
+  .container { padding: 16px 12px 32px; }
+  .card { padding: 18px; }
+  .form-row { grid-template-columns: 1fr; }
+  .header { padding: 12px 16px; }
+  .header-brand h1 { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
 </style>
@@ -319,7 +549,14 @@ tr:last-child td { border-bottom: none; }
 <body>
 
 <div class="header">
-  <h1>商汤自动注册</h1>
+  <div class="header-brand">
+    <div class="logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <h1>商汤自动注册</h1>
+  </div>
   <span class="status-badge" id="statusBadge">空闲</span>
 </div>
 
@@ -328,75 +565,102 @@ tr:last-child td { border-bottom: none; }
 
     <!-- ─── 左上：配置 ─── -->
     <div class="card">
-      <div class="card-title">豪猪码配置</div>
-      <div class="form-group">
-        <label>豪猪码账号</label>
-        <input type="text" id="cfgUser" placeholder="豪猪码用户名">
+      <div class="card-title">
+        <div class="card-title-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+          疾驰短信配置
+        </div>
       </div>
       <div class="form-group">
-        <label>豪猪码密码</label>
-        <input type="text" id="cfgPass" placeholder="豪猪码密码">
+        <label for="cfgToken">fcToken</label>
+        <input type="text" id="cfgToken" placeholder="在「我的Token」页面获取">
       </div>
       <div class="form-group">
-        <label>项目 SID</label>
-        <input type="text" id="cfgSid" placeholder="如 118255">
+        <label for="cfgSid">项目 SID</label>
+        <input type="text" id="cfgSid" placeholder="如 12345">
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>卡号类型</label>
+          <label for="cfgAscription">卡号类型</label>
           <select id="cfgAscription">
-            <option value="1">虚拟号</option>
-            <option value="2">实卡</option>
+            <option value="1">移动</option>
+            <option value="2">联通</option>
           </select>
         </div>
         <div class="form-group">
-          <label>号段 (可选)</label>
-          <input type="text" id="cfgParagraph" placeholder="如 170">
+          <label for="cfgParagraph">号段 (可选)</label>
+          <input type="text" id="cfgParagraph" placeholder="如 138">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>HTTP 代理</label>
+          <label for="cfgHttpProxy">HTTP 代理</label>
           <input type="text" id="cfgHttpProxy" placeholder="留空不使用">
         </div>
         <div class="form-group">
-          <label>HTTPS 代理</label>
+          <label for="cfgHttpsProxy">HTTPS 代理</label>
           <input type="text" id="cfgHttpsProxy" placeholder="留空不使用">
         </div>
       </div>
-      <button class="btn btn-primary btn-full" onclick="saveConfig()">保存配置</button>
+      <button class="btn btn-primary btn-full" onclick="saveConfig()" style="margin-top:4px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        保存配置
+      </button>
     </div>
 
     <!-- ─── 右上：注册 ─── -->
     <div class="card">
-      <div class="card-title">批量注册</div>
+      <div class="card-title">
+        <div class="card-title-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+          批量注册
+        </div>
+      </div>
       <div class="count-selector">
-        <label style="font-size:14px;color:var(--text-secondary)">数量</label>
+        <label>数量</label>
         <input type="number" id="regCount" value="1" min="1" max="100">
-        <div class="quick-count">
+        <div class="quick-count" data-target="count">
           <button onclick="setCount(1)" class="active">1</button>
           <button onclick="setCount(5)">5</button>
           <button onclick="setCount(10)">10</button>
           <button onclick="setCount(20)">20</button>
         </div>
       </div>
-      <button class="btn btn-primary btn-full" id="btnRegister" onclick="startRegister()">
-        开始注册
+      <div class="count-selector">
+        <label>并发</label>
+        <input type="number" id="regWorkers" value="1" min="1" max="10">
+        <div class="quick-count" data-target="workers">
+          <button onclick="setWorkers(1)" class="active">1</button>
+          <button onclick="setWorkers(2)">2</button>
+          <button onclick="setWorkers(3)">3</button>
+          <button onclick="setWorkers(5)">5</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="btnRegister" onclick="startRegister()" style="margin-top:4px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span id="btnRegisterText">开始注册</span>
       </button>
       <div class="progress-container hidden" id="progressBox">
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" id="progressFill"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:13px;color:var(--text-secondary)">
+        <div class="progress-meta">
           <span id="progressText">准备中...</span>
           <span id="progressCount">0/0</span>
         </div>
       </div>
       <!-- 日志 -->
-      <div style="margin-top:14px;">
-        <div style="font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">实时日志</div>
+      <div class="log-section">
+        <div class="log-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          实时日志
+        </div>
         <div class="log-panel" id="logPanel">
-          <div class="log-line info"><span class="time">--:--:--</span> 等待开始...</div>
+          <div class="log-line info"><span class="time">--:--:--</span> <span class="msg">等待开始...</span></div>
         </div>
       </div>
     </div>
@@ -404,14 +668,25 @@ tr:last-child td { border-bottom: none; }
     <!-- ─── 下方：账号列表 ─── -->
     <div class="card full">
       <div class="card-title">
-        已注册账号
+        <div class="card-title-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+          已注册账号
+        </div>
         <div class="sub-actions">
-          <button class="btn btn-secondary btn-sm" onclick="exportKeys()">导出 Key</button>
-          <button class="btn btn-secondary btn-sm" onclick="loadAccounts()">刷新</button>
+          <button class="btn btn-secondary btn-sm" onclick="exportKeys()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            导出 Key
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="loadAccounts()" aria-label="刷新账号列表">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            刷新
+          </button>
         </div>
       </div>
       <div class="table-wrap">
-        <table id="accountsTable">
+        <table id="accountsTable" class="hidden">
           <thead>
             <tr>
               <th>用户名</th>
@@ -425,7 +700,11 @@ tr:last-child td { border-bottom: none; }
           </tbody>
         </table>
       </div>
-      <div class="empty-state hidden" id="accountsEmpty">暂无账号</div>
+      <div class="empty-state" id="accountsEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        <div class="empty-title">暂无账号</div>
+        <div class="empty-hint">配置完成后点击「开始注册」</div>
+      </div>
     </div>
 
   </div>
@@ -439,15 +718,14 @@ function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
+  setTimeout(() => el.classList.remove('show'), 2500);
 }
 
 // ─── Config ───
 function loadConfig() {
   fetch('/api/config').then(r => r.json()).then(c => {
-    document.getElementById('cfgUser').value = c.HZM_USER || '';
-    document.getElementById('cfgPass').value = c.HZM_PASS_FULL || c.HZM_PASS || '';
-    document.getElementById('cfgSid').value = c.HZM_SID || '';
+    document.getElementById('cfgToken').value = c.JC_TOKEN_FULL || c.JC_TOKEN || '';
+    document.getElementById('cfgSid').value = c.JC_SID || '';
     document.getElementById('cfgAscription').value = c.SMS_ASCRIPTION || '1';
     document.getElementById('cfgParagraph').value = c.SMS_PARAGRAPH || '';
     document.getElementById('cfgHttpProxy').value = c.HTTP_PROXY || '';
@@ -457,9 +735,8 @@ function loadConfig() {
 
 function saveConfig() {
   const body = {
-    HZM_USER: document.getElementById('cfgUser').value.trim(),
-    HZM_PASS: document.getElementById('cfgPass').value.trim(),
-    HZM_SID: document.getElementById('cfgSid').value.trim(),
+    JC_TOKEN: document.getElementById('cfgToken').value.trim(),
+    JC_SID: document.getElementById('cfgSid').value.trim(),
     SMS_ASCRIPTION: document.getElementById('cfgAscription').value,
     SMS_PARAGRAPH: document.getElementById('cfgParagraph').value.trim(),
     HTTP_PROXY: document.getElementById('cfgHttpProxy').value.trim(),
@@ -478,7 +755,14 @@ function saveConfig() {
 // ─── Register ───
 function setCount(n) {
   document.getElementById('regCount').value = n;
-  document.querySelectorAll('.quick-count button').forEach(b => {
+  document.querySelectorAll('.quick-count[data-target="count"] button').forEach(b => {
+    b.classList.toggle('active', parseInt(b.textContent) === n);
+  });
+}
+
+function setWorkers(n) {
+  document.getElementById('regWorkers').value = n;
+  document.querySelectorAll('.quick-count[data-target="workers"] button').forEach(b => {
     b.classList.toggle('active', parseInt(b.textContent) === n);
   });
 }
@@ -487,11 +771,13 @@ let eventSource = null;
 
 function startRegister() {
   const count = parseInt(document.getElementById('regCount').value) || 1;
+  const workers = parseInt(document.getElementById('regWorkers').value) || 1;
   if (count < 1) return toast('数量不能小于1');
 
   const btn = document.getElementById('btnRegister');
+  const btnText = document.getElementById('btnRegisterText');
   btn.disabled = true;
-  btn.textContent = '注册中...';
+  btnText.textContent = '注册中...';
   document.getElementById('statusBadge').textContent = '运行中';
   document.getElementById('statusBadge').className = 'status-badge running';
   document.getElementById('progressBox').classList.remove('hidden');
@@ -509,7 +795,7 @@ function startRegister() {
       eventSource.close();
       eventSource = null;
       btn.disabled = false;
-      btn.textContent = '开始注册';
+      btnText.textContent = '开始注册';
       const badge = document.getElementById('statusBadge');
       if (data.error) {
         badge.textContent = '错误';
@@ -530,6 +816,9 @@ function startRegister() {
       return;
     }
     addLog(data.level || 'info', data.msg);
+    if (data.msg && data.msg.includes('注册成功')) {
+      loadAccounts();
+    }
     fetch('/api/status').then(r => r.json()).then(s => {
       if (s.progress && s.progress.total > 0) {
         const pct = (s.progress.done / s.progress.total) * 100;
@@ -548,12 +837,12 @@ function startRegister() {
   fetch('/api/register', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({count: count})
+    body: JSON.stringify({count: count, workers: workers})
   }).then(r => r.json()).then(data => {
     if (data.error) {
       toast(data.error);
       btn.disabled = false;
-      btn.textContent = '开始注册';
+      btnText.textContent = '开始注册';
       document.getElementById('statusBadge').textContent = '空闲';
       document.getElementById('statusBadge').className = 'status-badge';
       if (eventSource) { eventSource.close(); eventSource = null; }
@@ -596,15 +885,21 @@ function loadAccounts() {
       const keyShort = a.api_key ? a.api_key.substring(0, 20) + '...' : '';
       tr.innerHTML = `
         <td style="font-weight:500">${escapeHtml(a.username || '')}</td>
-        <td>${escapeHtml(a.phone || '')}</td>
+        <td style="font-variant-numeric:tabular-nums">${escapeHtml(a.phone || '')}</td>
         <td>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-family:monospace;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(a.api_key||'')}">${escapeHtml(keyShort)}</span>
-            <button class="copy-btn" onclick="copyText('${escapeHtml(a.api_key||'')}', this)">复制</button>
+          <div class="key-cell">
+            <span class="key-text" title="${escapeHtml(a.api_key||'')}">${escapeHtml(keyShort)}</span>
+            <button class="copy-btn" onclick="copyText('${escapeHtml(a.api_key||'')}', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              复制
+            </button>
           </div>
         </td>
-        <td style="font-size:12px;color:var(--text-secondary)">${escapeHtml(a.create_time || '')}</td>
-        <td><button class="copy-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteAccount('${escapeHtml(a.username||'')}')">删除</button></td>
+        <td style="font-size:12px;color:var(--text-secondary);font-variant-numeric:tabular-nums">${escapeHtml(a.create_time || '')}</td>
+        <td><button class="copy-btn delete-btn" onclick="deleteAccount('${escapeHtml(a.username||'')}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          删除
+        </button></td>
       `;
       body.appendChild(tr);
     });
@@ -633,7 +928,10 @@ function copyText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = '✓';
     btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1500);
+    setTimeout(() => {
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> 复制';
+      btn.classList.remove('copied');
+    }, 1500);
   });
 }
 

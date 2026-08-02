@@ -97,13 +97,78 @@ class SensenovaClient:
 
     # -------- 短信验证 --------
 
+    def _get_captcha(self) -> dict:
+        """获取滑块验证码"""
+        data = self._get(f"{self.IAM_BASE}/auth/getCaptcha", timeout=15)
+        return data
+
+    def _solve_captcha(self, bg_b64: str, block_b64: str) -> int:
+        """识别滑块缺口 x 坐标"""
+        import cv2
+        import numpy as np
+        import base64
+
+        bg_bytes = base64.b64decode(bg_b64)
+        block_bytes = base64.b64decode(block_b64)
+        bg = cv2.imdecode(np.frombuffer(bg_bytes, np.uint8), cv2.IMREAD_COLOR)
+        block = cv2.imdecode(np.frombuffer(block_bytes, np.uint8), cv2.IMREAD_UNCHANGED)
+
+        bg_gray = cv2.cvtColor(bg, cv2.COLOR_BGR2GRAY)
+        block_gray = cv2.cvtColor(block[:, :, :3], cv2.COLOR_BGR2GRAY)
+
+        bg_edge = cv2.Canny(bg_gray, 100, 200)
+        block_edge = cv2.Canny(block_gray, 100, 200)
+
+        result = cv2.matchTemplate(bg_edge, block_edge, cv2.TM_CCOEFF_NORMED)
+        _, _, _, max_loc = cv2.minMaxLoc(result)
+        return max_loc[0]
+
+    def _check_captcha(self, code_key: str, x: int) -> bool:
+        """校验滑块验证码"""
+        try:
+            data = self._get(f"{self.IAM_BASE}/auth/checkCaptcha",
+                             params={"code_key": code_key, "code_value": str(x)}, timeout=10)
+            return bool(data.get("result", False))
+        except Exception:
+            return False
+
+    def _solve_and_get_code_key(self, max_attempts: int = 5) -> str:
+        """获取滑块验证码 code_key（自动识别+校验，失败重试）"""
+        for i in range(max_attempts):
+            captcha = self._get_captcha()
+            code_key = captcha.get("code_key", "")
+            if not code_key:
+                time.sleep(0.5)
+                continue
+            x = self._solve_captcha(captcha["image"], captcha["block"])
+            log.info(f"[Captcha] 尝试 {i+1}/{max_attempts} x={x}")
+            if self._check_captcha(code_key, x):
+                log.info("[Captcha] 验证通过")
+                return code_key
+            log.warning(f"[Captcha] 验证失败 (x={x})")
+            time.sleep(0.15)
+        raise RuntimeError("滑块验证码识别失败，请重试")
+
     def send_sms(self, phone: str, region_code: str = "86") -> str:
+        # 第一次尝试不带验证码
         data = self._post(f"{self.IAM_BASE}/auth/nova/sendSmsCode",
                           json={"phone": phone, "region_code": region_code})
         self.token_code = data.get("token_code", "")
+        if self.token_code:
+            log.info(f"[SMS] 已发送 -> {phone}")
+            return self.token_code
+
+        # token_code 为空 → 需要滑块验证码
+        log.info("[SMS] 需要滑块验证码，开始自动识别...")
+        code_key = self._solve_and_get_code_key()
+
+        # 带 code_key 重新发送
+        data = self._post(f"{self.IAM_BASE}/auth/nova/sendSmsCode",
+                          json={"phone": phone, "region_code": region_code, "code_key": code_key})
+        self.token_code = data.get("token_code", "")
         if not self.token_code:
-            raise RuntimeError(f"发送验证码失败: {data}")
-        log.info(f"[SMS] 已发送 -> {phone}")
+            raise RuntimeError(f"发送验证码失败(即使通过验证码): {data}")
+        log.info(f"[SMS] 已发送(验证码) -> {phone}")
         return self.token_code
 
     def verify_sms(self, code: str) -> dict:

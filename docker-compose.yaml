@@ -7,9 +7,9 @@ services:
       - ./data:/app/data
       - ./.env:/app/.env
     networks:
-      - web
+      - newapi_web
 
 networks:
-  web:
+  newapi_web:
     external: true
-    name: vpsvalue_web
+    name: newapi_web

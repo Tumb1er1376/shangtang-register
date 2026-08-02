@@ -4,17 +4,17 @@
 
 基于 [Wenaixi/shangtang-register](https://github.com/Wenaixi/shangtang-register) 改造，主要变更：
 
-- 接码平台从 JichiSMS 切换为 [豪猪码](https://h5.haozhuma.com/reg.html?action=beaver1376)
+- 接码平台使用 [疾驰短信 (jichisms.com)](https://www.jichisms.com/)
 - tkinter GUI 替换为 FastAPI + 单页 Web 面板（iOS 亮色风格）
-- 新增 Docker Compose 部署支持
+- Docker Compose 部署支持
 - SSE 实时日志推送
-- Web 面板在线配置豪猪码账号/密码/项目 SID
+- Web 面板在线配置疾驰短信 fcToken/项目 SID
 
 ## 功能
 
 - 自动完成 OAuth2 PKCE 流程：获取 challenge → 取号 → 短信验证 → 注册 → Token → API Key
 - 失败自动释放手机号并重试（最多 2 次）
-- 支持指定卡号类型（1=虚拟号, 2=实卡）和号段筛选
+- 支持指定卡号类型（1=移动, 2=联通）和号段筛选
 - **Web 面板**：浏览器操作，实时 SSE 日志，账号管理（查看/复制/删除/导出）
 - **CLI**：`--search` `--list` `--export` `--count` 子命令
 - 每个账号独立存储：`data/shangtang-{username}.json`
@@ -28,7 +28,7 @@ git clone https://github.com/Tumb1er1376/shangtang-register.git
 cd shangtang-register
 
 cp .env.example .env
-# 编辑 .env 填入豪猪码账号/密码/项目 SID
+# 编辑 .env 填入疾驰短信 fcToken/项目 SID
 
 docker compose up -d --build
 ```
@@ -48,10 +48,10 @@ docker compose up -d --build
 
 ```bash
 cp .env.example .env
-# 编辑 .env 填入豪猪码账号/密码/项目 SID
+# 编辑 .env 填入疾驰短信 fcToken/项目 SID
 ```
 
-豪猪码账号注册：[https://h5.haozhuma.com/reg.html?action=beaver1376](https://h5.haozhuma.com/reg.html?action=beaver1376)
+疾驰短信账号注册：[https://www.jichisms.com/](https://www.jichisms.com/)
 
 #### 启动 Web 面板
 
@@ -66,7 +66,7 @@ uvicorn web_app:app --host 0.0.0.0 --port 8000
 ```bash
 python cli.py                    # 单次注册
 python cli.py --count 5          # 批量注册 5 个
-python cli.py --search 商汤      # 搜索豪猪码项目
+python cli.py --search 商汤      # 搜索疾驰短信项目
 python cli.py --list             # 列出已有账号
 python cli.py --export           # 导出所有 API Key（每行一个）
 ```
@@ -82,7 +82,7 @@ shangtang-register/
   sensenova/                # 核心包
     config.py               # 配置管理（.env 读写）
     core/
-      sms_client.py         # 豪猪码 API 客户端：登录/取号/验证码/释放
+      sms_client.py         # 疾驰短信 API 客户端：取号/验证码/释放
       sensenova_client.py   # 商汤 OAuth2 PKCE 客户端
       orchestrator.py       # 注册编排器：8 步流程/重试/持久化
     utils/
@@ -91,7 +91,7 @@ shangtang-register/
   Dockerfile
   docker-compose.yaml
   .env.example              # 配置模板
-  api_documentation.md      # 豪猪码 API 文档
+  api_documentation.md      # 疾驰短信 API 文档
 ```
 
 ## 注册流程
@@ -99,38 +99,37 @@ shangtang-register/
 | 步骤 | 操作 | API |
 |------|------|-----|
 | 1 | PKCE + login_challenge | OAuth2 Auth Page |
-| 2 | 豪猪码取号 | /sms/ api=getPhone |
+| 2 | 疾驰短信取号 | POST /api/user/getPhone |
 | 3 | 发送短信验证码 | IAM sendSmsCode |
-| 4 | 轮询验证码（5s×20） | /sms/ api=getMessage |
+| 4 | 轮询验证码（5s×20） | POST /api/user/getVerifyCode |
 | 5 | 短信校验 | IAM smsLogin |
 | 6 | 注册账号 | IAM register |
 | 7 | OAuth2 授权码 → Token | oauth2/token |
 | 8 | 获取 API Key | /metered/api-keys |
-| + | 释放手机号 | /sms/ api=cancelRecv |
+| + | 释放手机号 | POST /api/user/releasePhone |
 
 ## 配置项
 
 | 变量 | 说明 | 示例 |
 |------|------|------|
-| HZM_USER | 豪猪码用户名 | your_username |
-| HZM_PASS | 豪猪码密码 | your_password |
-| HZM_SID | 豪猪码项目 SID | 69454 |
+| JC_TOKEN | 疾驰短信 fcToken | your_fctoken |
+| JC_SID | 疾驰短信项目 ID | 12345 |
 | HTTP_PROXY | HTTP 代理 | http://127.0.0.1:10801 |
 | HTTPS_PROXY | HTTPS 代理 | http://127.0.0.1:10801 |
-| SMS_ASCRIPTION | 卡号类型 | 1=虚拟号, 2=实卡 |
-| SMS_PARAGRAPH | 号段筛选（可选） | 165 |
+| SMS_ASCRIPTION | 卡号类型 | 1=移动, 2=联通 |
+| SMS_PARAGRAPH | 号段筛选（可选） | 138 |
 | REGISTER_COUNT | 注册数量 | 1 |
 
 ## 接码平台
 
-本项目使用 [豪猪码](https://h5.haozhuma.com/reg.html?action=beaver1376) 接码平台。
+本项目使用 [疾驰短信 (jichisms.com)](https://www.jichisms.com/) 接码平台。
 
-注册豪猪码账号后，在「我的Token」页面获取用户名和密码，在项目列表中找到商汤科技对应项目的 SID，填入 `.env` 文件即可。
+注册疾驰短信账号后，在「我的Token」页面获取 fcToken，在项目列表中找到商汤科技对应项目的 ID，填入 `.env` 文件即可。
 
 ## 致谢
 
 - 原项目：[Wenaixi/shangtang-register](https://github.com/Wenaixi/shangtang-register) — HAR 逆向分析和 OAuth2 PKCE 注册流程
-- 接码平台：[豪猪码](https://h5.haozhuma.com/reg.html?action=beaver1376)
+- 接码平台：[疾驰短信](https://www.jichisms.com/)
 
 ## License
 

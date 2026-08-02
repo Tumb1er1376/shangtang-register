@@ -27,7 +27,6 @@ from sensenova.config import config
 
 DATA_DIR = PROJECT_ROOT / "data"
 
-
 def _load_accounts() -> list[dict]:
     """从 data/ 目录扫描所有 shangtang-*.json"""
     if not DATA_DIR.exists():
@@ -42,41 +41,28 @@ def _load_accounts() -> list[dict]:
 
 
 def cmd_search(keyword: str):
-    """搜索豪猪码项目"""
-    import requests
+    """搜索疾驰短信项目"""
     setup_log()
-    if not config.HZM_USER or not config.HZM_PASS:
-        print("请先在 .env 中配置 HZM_USER 和 HZM_PASS")
+    if not config.JC_TOKEN:
+        print("请先在 .env 中配置 JC_TOKEN")
         return
-    s = requests.Session()
-    s.headers.update({"User-Agent": "Mozilla/5.0"})
-    # 登录豪猪码获取 token
-    r = s.get("https://api.haozhuma.com/sms/", params={
-        "api": "login", "user": config.HZM_USER, "pass": config.HZM_PASS,
-    }, proxies=config.proxies or None, timeout=15)
-    data = r.json()
-    if str(data.get("code")) not in ("0", "200"):
-        print(f"豪猪码登录失败: {data}")
-        return
-    token = data["token"]
-    s.headers.update({"fcToken": token})
-    params = {"page": 1, "pagesize": 50}
-    if len(keyword) >= 3:
-        params["project_name"] = keyword
     try:
-        r = s.get(
-            "https://api.haozhuma.com/sms/api/user/projects",
-            params=params, proxies=config.proxies or None, timeout=15,
+        sms = SMSClient(
+            token=config.JC_TOKEN,
+            sid="",
+            proxies=config.proxies or None,
         )
-        data = r.json()
-        if data.get("code") == 1:
+        data = sms.search_projects(keyword=keyword, page=1, pagesize=100)
+        if str(data.get("code")) in ("1", "200"):
             projects = data.get("data", [])
+            if isinstance(projects, dict):
+                projects = projects.get("list", [])
             print(f'\n搜索 "{keyword}" - 找到 {len(projects)} 个项目:\n')
             print(f'  {"ID":>8}  {"项目名":<28} {"价格":>6}')
             print(f'  {"-"*8}  {"-"*28} {"-"*6}')
             for p in projects:
-                pname = p["project_name"][:28]
-                print(f'  {p["id"]:>8}  {pname:<28} {p.get("money","?"):>6}')
+                pname = p.get("project_name", "")[:28]
+                print(f'  {str(p.get("id","")):>8}  {pname:<28} {str(p.get("money","?")):>6}')
         else:
             print(f'搜索失败: {data.get("msg")}')
     except Exception as e:
@@ -116,12 +102,10 @@ def cmd_register(count: int):
 
     # 验证配置
     errors = []
-    if not config.HZM_USER:
-        errors.append("HZM_USER 未设置")
-    if not config.HZM_PASS:
-        errors.append("HZM_PASS 未设置")
-    if not config.HZM_SID:
-        errors.append("HZM_SID 未设置")
+    if not config.JC_TOKEN:
+        errors.append("JC_TOKEN 未设置")
+    if not config.JC_SID:
+        errors.append("JC_SID 未设置")
     if errors:
         print("配置缺失:")
         for e in errors:
@@ -132,16 +116,15 @@ def cmd_register(count: int):
     log.info("="*50)
     log.info("  商汤自动注册工具 - CLI")
     log.info("="*50)
-    log.info(f"  豪猪码SID: {config.HZM_SID}")
+    log.info(f"  疾驰SID:  {config.JC_SID}")
     log.info(f"  卡号:    {config.SMS_ASCRIPTION or '不限'}")
     log.info(f"  号段:    {config.SMS_PARAGRAPH or '不限'}")
     log.info(f"  数量:    {count}")
     log.info(f"  代理:    HTTP={config.HTTP_PROXY or '无'} HTTPS={config.HTTPS_PROXY or '无'}")
 
     sms = SMSClient(
-        user=config.HZM_USER,
-        pwd=config.HZM_PASS,
-        sid=config.HZM_SID,
+        token=config.JC_TOKEN,
+        sid=config.JC_SID,
         ascription=config.SMS_ASCRIPTION,
         paragraph=config.SMS_PARAGRAPH,
         proxies=config.proxies or None,

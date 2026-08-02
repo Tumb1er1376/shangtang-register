@@ -17,7 +17,7 @@ from sensenova.utils.log import proxy as log
 class RegistrationOrchestrator:
     """自动注册编排器"""
 
-    MAX_RETRIES = 2
+    MAX_RETRIES = 3
 
     def __init__(
         self,
@@ -42,7 +42,7 @@ class RegistrationOrchestrator:
                 log.error(f"[失败-#{attempt}] {e}")
                 self._cleanup_phone()
                 if attempt <= self.MAX_RETRIES:
-                    time.sleep(3 * attempt)
+                    time.sleep(2 * attempt)
                 else:
                     log.error("达到最大重试次数")
                     return None
