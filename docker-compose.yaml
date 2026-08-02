@@ -1,0 +1,15 @@
+services:
+  shangtang-register:
+    build: .
+    container_name: shangtang-register
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
+    name: vpsvalue_web

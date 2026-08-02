@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商汤自动注册</title>
+<style>
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --blue: #0071e3;
+  --blue-hover: #0077ed;
+  --green: #34c759;
+  --red: #ff3b30;
+  --orange: #ff9500;
+  --text: #1d1d1f;
+  --text-secondary: #86868b;
+  --border: #d2d2d7;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.header {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+.header .status-badge {
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 980px;
+  font-weight: 500;
+  background: var(--border);
+  color: var(--text-secondary);
+}
+.header .status-badge.running {
+  background: rgba(52, 199, 89, 0.12);
+  color: var(--green);
+}
+.header .status-badge.error {
+  background: rgba(255, 59, 48, 0.12);
+  color: var(--red);
+}
+
+/* Layout */
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.main-grid > .full { grid-column: 1 / -1; }
+
+/* Card */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title .sub-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Form */
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 980px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--blue);
+  color: white;
+}
+.btn-primary:hover { background: var(--blue-hover); }
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-danger { background: var(--red); color: white; }
+.btn-secondary {
+  background: rgba(118,118,128,0.12);
+  color: var(--text);
+}
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn-full { width: 100%; }
+
+/* Register Panel */
+.count-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.count-selector input {
+  width: 80px;
+  text-align: center;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+  font-weight: 600;
+  background: var(--bg);
+}
+.quick-count {
+  display: flex;
+  gap: 8px;
+}
+.quick-count button {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 980px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.quick-count button.active {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+}
+
+/* Progress */
+.progress-container { margin-top: 12px; }
+.progress-bar-bg {
+  height: 6px;
+  background: rgba(118,118,128,0.12);
+  border-radius: 980px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 980px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* Log */
+.log-panel {
+  background: #1d1d1f;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  max-height: 260px;
+  overflow-y: auto;
+  font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.log-panel::-webkit-scrollbar { width: 6px; }
+.log-panel::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+}
+.log-line { color: #e5e5e7; white-space: pre-wrap; word-break: break-all; }
+.log-line .time { color: #6e6e73; }
+.log-line.info .msg { color: #e5e5e7; }
+.log-line.warning .msg { color: var(--orange); }
+.log-line.error .msg { color: var(--red); }
+.log-line.done {
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* Account Table */
+.table-wrap { overflow-x: auto; max-height: 300px; overflow-y: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  text-align: left;
+  padding: 10px 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(210,210,215,0.4);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+.copy-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { background: var(--bg); }
+.copy-btn.copied {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+.empty-state {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 980px;
+  font-size: 14px;
+  z-index: 999;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.hidden { display: none !important; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>商汤自动注册</h1>
+  <span class="status-badge" id="statusBadge">空闲</span>
+</div>
+
+<div class="container">
+  <div class="main-grid">
+
+    <!-- ─── 左上：配置 ─── -->
+    <div class="card">
+      <div class="card-title">豪猪码配置</div>
+      <div class="form-group">
+        <label>豪猪码账号</label>
+        <input type="text" id="cfgUser" placeholder="豪猪码用户名">
+      </div>
+      <div class="form-group">
+        <label>豪猪码密码</label>
+        <input type="text" id="cfgPass" placeholder="豪猪码密码">
+      </div>
+      <div class="form-group">
+        <label>项目 SID</label>
+        <input type="text" id="cfgSid" placeholder="如 118255">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>卡号类型</label>
+          <select id="cfgAscription">
+            <option value="1">虚拟号</option>
+            <option value="2">实卡</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>号段 (可选)</label>
+          <input type="text" id="cfgParagraph" placeholder="如 170">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>HTTP 代理</label>
+          <input type="text" id="cfgHttpProxy" placeholder="留空不使用">
+        </div>
+        <div class="form-group">
+          <label>HTTPS 代理</label>
+          <input type="text" id="cfgHttpsProxy" placeholder="留空不使用">
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="saveConfig()">保存配置</button>
+    </div>
+
+    <!-- ─── 右上：注册 ─── -->
+    <div class="card">
+      <div class="card-title">批量注册</div>
+      <div class="count-selector">
+        <label style="font-size:14px;color:var(--text-secondary)">数量</label>
+        <input type="number" id="regCount" value="1" min="1" max="100">
+        <div class="quick-count">
+          <button onclick="setCount(1)" class="active">1</button>
+          <button onclick="setCount(5)">5</button>
+          <button onclick="setCount(10)">10</button>
+          <button onclick="setCount(20)">20</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="btnRegister" onclick="startRegister()">
+        开始注册
+      </button>
+      <div class="progress-container hidden" id="progressBox">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:13px;color:var(--text-secondary)">
+          <span id="progressText">准备中...</span>
+          <span id="progressCount">0/0</span>
+        </div>
+      </div>
+      <!-- 日志 -->
+      <div style="margin-top:14px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">实时日志</div>
+        <div class="log-panel" id="logPanel">
+          <div class="log-line info"><span class="time">--:--:--</span> 等待开始...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 下方：账号列表 ─── -->
+    <div class="card full">
+      <div class="card-title">
+        已注册账号
+        <div class="sub-actions">
+          <button class="btn btn-secondary btn-sm" onclick="exportKeys()">导出 Key</button>
+          <button class="btn btn-secondary btn-sm" onclick="loadAccounts()">刷新</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="accountsTable">
+          <thead>
+            <tr>
+              <th>用户名</th>
+              <th>手机号</th>
+              <th>API Key</th>
+              <th>时间</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="accountsBody">
+          </tbody>
+        </table>
+      </div>
+      <div class="empty-state hidden" id="accountsEmpty">暂无账号</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Toast ───
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ─── Config ───
+function loadConfig() {
+  fetch('/api/config').then(r => r.json()).then(c => {
+    document.getElementById('cfgUser').value = c.HZM_USER || '';
+    document.getElementById('cfgPass').value = c.HZM_PASS_FULL || c.HZM_PASS || '';
+    document.getElementById('cfgSid').value = c.HZM_SID || '';
+    document.getElementById('cfgAscription').value = c.SMS_ASCRIPTION || '1';
+    document.getElementById('cfgParagraph').value = c.SMS_PARAGRAPH || '';
+    document.getElementById('cfgHttpProxy').value = c.HTTP_PROXY || '';
+    document.getElementById('cfgHttpsProxy').value = c.HTTPS_PROXY || '';
+  });
+}
+
+function saveConfig() {
+  const body = {
+    HZM_USER: document.getElementById('cfgUser').value.trim(),
+    HZM_PASS: document.getElementById('cfgPass').value.trim(),
+    HZM_SID: document.getElementById('cfgSid').value.trim(),
+    SMS_ASCRIPTION: document.getElementById('cfgAscription').value,
+    SMS_PARAGRAPH: document.getElementById('cfgParagraph').value.trim(),
+    HTTP_PROXY: document.getElementById('cfgHttpProxy').value.trim(),
+    HTTPS_PROXY: document.getElementById('cfgHttpsProxy').value.trim(),
+  };
+  fetch('/api/config', {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  }).then(r => r.json()).then(data => {
+    if (data.ok) toast('配置已保存');
+    else toast('保存失败');
+  });
+}
+
+// ─── Register ───
+function setCount(n) {
+  document.getElementById('regCount').value = n;
+  document.querySelectorAll('.quick-count button').forEach(b => {
+    b.classList.toggle('active', parseInt(b.textContent) === n);
+  });
+}
+
+let eventSource = null;
+
+function startRegister() {
+  const count = parseInt(document.getElementById('regCount').value) || 1;
+  if (count < 1) return toast('数量不能小于1');
+
+  const btn = document.getElementById('btnRegister');
+  btn.disabled = true;
+  btn.textContent = '注册中...';
+  document.getElementById('statusBadge').textContent = '运行中';
+  document.getElementById('statusBadge').className = 'status-badge running';
+  document.getElementById('progressBox').classList.remove('hidden');
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('progressText').textContent = '准备中...';
+  document.getElementById('progressCount').textContent = `0/${count}`;
+  document.getElementById('logPanel').innerHTML = '';
+
+  if (eventSource) eventSource.close();
+  eventSource = new EventSource('/api/register/stream');
+
+  eventSource.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    if (data.type === 'done') {
+      eventSource.close();
+      eventSource = null;
+      btn.disabled = false;
+      btn.textContent = '开始注册';
+      const badge = document.getElementById('statusBadge');
+      if (data.error) {
+        badge.textContent = '错误';
+        badge.className = 'status-badge error';
+        toast('注册失败: ' + data.error);
+      } else {
+        badge.textContent = '完成';
+        badge.className = 'status-badge running';
+        const ok = data.result ? data.result.success : 0;
+        toast(`注册完成: 成功 ${ok}/${count}`);
+        addLog('done', `✅ 注册完成: 成功 ${ok}/${count}`);
+      }
+      setTimeout(() => {
+        badge.textContent = '空闲';
+        badge.className = 'status-badge';
+      }, 5000);
+      loadAccounts();
+      return;
+    }
+    addLog(data.level || 'info', data.msg);
+    fetch('/api/status').then(r => r.json()).then(s => {
+      if (s.progress && s.progress.total > 0) {
+        const pct = (s.progress.done / s.progress.total) * 100;
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressText').textContent = `已完成 ${s.progress.done} 个`;
+        document.getElementById('progressCount').textContent = `${s.progress.done}/${s.progress.total}`;
+      }
+    });
+  };
+
+  eventSource.onerror = function() {
+    eventSource.close();
+    eventSource = null;
+  };
+
+  fetch('/api/register', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({count: count})
+  }).then(r => r.json()).then(data => {
+    if (data.error) {
+      toast(data.error);
+      btn.disabled = false;
+      btn.textContent = '开始注册';
+      document.getElementById('statusBadge').textContent = '空闲';
+      document.getElementById('statusBadge').className = 'status-badge';
+      if (eventSource) { eventSource.close(); eventSource = null; }
+    }
+  });
+}
+
+function addLog(level, msg) {
+  const panel = document.getElementById('logPanel');
+  const now = new Date();
+  const time = String(now.getHours()).padStart(2,'0') + ':' +
+               String(now.getMinutes()).padStart(2,'0') + ':' +
+               String(now.getSeconds()).padStart(2,'0');
+  const div = document.createElement('div');
+  div.className = 'log-line ' + level;
+  div.innerHTML = `<span class="time">${time}</span> <span class="msg">${escapeHtml(msg)}</span>`;
+  panel.appendChild(div);
+  panel.scrollTop = panel.scrollHeight;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── Accounts ───
+function loadAccounts() {
+  fetch('/api/accounts').then(r => r.json()).then(data => {
+    const body = document.getElementById('accountsBody');
+    const empty = document.getElementById('accountsEmpty');
+    body.innerHTML = '';
+    if (!data || data.length === 0) {
+      empty.classList.remove('hidden');
+      document.getElementById('accountsTable').classList.add('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    document.getElementById('accountsTable').classList.remove('hidden');
+    data.forEach(a => {
+      const tr = document.createElement('tr');
+      const keyShort = a.api_key ? a.api_key.substring(0, 20) + '...' : '';
+      tr.innerHTML = `
+        <td style="font-weight:500">${escapeHtml(a.username || '')}</td>
+        <td>${escapeHtml(a.phone || '')}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-family:monospace;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(a.api_key||'')}">${escapeHtml(keyShort)}</span>
+            <button class="copy-btn" onclick="copyText('${escapeHtml(a.api_key||'')}', this)">复制</button>
+          </div>
+        </td>
+        <td style="font-size:12px;color:var(--text-secondary)">${escapeHtml(a.create_time || '')}</td>
+        <td><button class="copy-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteAccount('${escapeHtml(a.username||'')}')">删除</button></td>
+      `;
+      body.appendChild(tr);
+    });
+  });
+}
+
+function deleteAccount(username) {
+  if (!confirm(`确认删除账号 ${username}？`)) return;
+  fetch(`/api/accounts/${username}`, {method:'DELETE'}).then(r => {
+    if (r.ok) { toast('已删除'); loadAccounts(); }
+    else toast('删除失败');
+  });
+}
+
+function exportKeys() {
+  fetch('/api/accounts/export').then(r => r.json()).then(data => {
+    if (data.count === 0) return toast('暂无 API Key');
+    const text = data.keys.join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      toast(`已复制 ${data.count} 个 API Key`);
+    });
+  });
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+// ─── Init ───
+loadConfig();
+loadAccounts();
+</script>
+</body>
+</html>
