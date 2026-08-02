@@ -1,21 +1,21 @@
-# ShangTang Auto Register
+# 商汤自动注册
 
 全自动商汤科技（SenseNova）账号注册 + API Key 获取工具。
 
 基于 [Wenaixi/shangtang-register](https://github.com/Wenaixi/shangtang-register) 改造，主要变更：
 
 - 接码平台使用 [疾驰短信 (jichisms.com)](https://www.jichisms.com/)
-- tkinter GUI 替换为 FastAPI + 单页 Web 面板（iOS 亮色风格）
-- Docker Compose 部署支持
+- tkinter GUI 替换为 FastAPI + 单页 Web 面板
+- Docker Compose 一键部署
 - SSE 实时日志推送
-- Web 面板在线配置疾驰短信 fcToken/项目 SID
+- Web 面板在线配置疾驰短信 fcToken / 项目 SID
 
 ## 功能
 
-- 自动完成 OAuth2 PKCE 流程：获取 challenge → 取号 → 短信验证 → 注册 → Token → API Key
+- 自动完成 OAuth2 PKCE 全流程：获取 challenge → 取号 → 短信验证 → 注册 → Token → API Key
 - 失败自动释放手机号并重试（最多 2 次）
 - 支持指定卡号类型（1=移动, 2=联通）和号段筛选
-- **Web 面板**：浏览器操作，实时 SSE 日志，账号管理（查看/复制/删除/导出）
+- **Web 面板**：浏览器操作，实时 SSE 日志，账号管理（查看 / 复制 / 删除 / 导出）
 - **CLI**：`--search` `--list` `--export` `--count` 子命令
 - 每个账号独立存储：`data/shangtang-{username}.json`
 
@@ -28,14 +28,14 @@ git clone https://github.com/Tumb1er1376/shangtang-register.git
 cd shangtang-register
 
 cp .env.example .env
-# 编辑 .env 填入疾驰短信 fcToken/项目 SID
+# 编辑 .env 填入疾驰短信 fcToken / 项目 SID
 
 docker compose up -d --build
 ```
 
 默认监听 8000 端口，浏览器访问 `http://localhost:8000` 即可使用 Web 面板。
 
-如需通过反向代理部署，将容器接入已有的 Docker 网络并在 Caddy/Nginx 中反代即可。
+如需通过反向代理部署，将容器接入已有的 Docker 网络并在 Caddy / Nginx 中反代即可。
 
 ### 本地运行
 
@@ -48,7 +48,7 @@ docker compose up -d --build
 
 ```bash
 cp .env.example .env
-# 编辑 .env 填入疾驰短信 fcToken/项目 SID
+# 编辑 .env 填入疾驰短信 fcToken / 项目 SID
 ```
 
 疾驰短信账号注册：[https://www.jichisms.com/](https://www.jichisms.com/)
@@ -78,13 +78,13 @@ shangtang-register/
   web_app.py                # FastAPI Web 后端（REST API + SSE）
   cli.py                    # CLI 入口
   templates/
-    index.html              # 单页 Web 面板（iOS 亮色风格）
+    index.html              # 单页 Web 面板
   sensenova/                # 核心包
     config.py               # 配置管理（.env 读写）
     core/
-      sms_client.py         # 疾驰短信 API 客户端：取号/验证码/释放
+      sms_client.py         # 疾驰短信 API 客户端：取号 / 验证码 / 释放
       sensenova_client.py   # 商汤 OAuth2 PKCE 客户端
-      orchestrator.py       # 注册编排器：8 步流程/重试/持久化
+      orchestrator.py       # 注册编排器：8 步流程 / 重试 / 持久化
     utils/
       crypto.py             # PKCE / 密码生成 / JWT 解码
       log.py                # 日志 + 事件回调
